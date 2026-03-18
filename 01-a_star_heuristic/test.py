@@ -1,33 +1,36 @@
 import math
-from graphs import Grid2D, GridDiagonal2D, GridGreatKing2D, GridRook2D, GridJumper2D, Grid3D, GridFaceDiagonal3D, GridAllDiagonal3D
 
-# For two points a and b in the n-dimensional space, return the d-dimensional point r such that r_i = | a_i - b_i | for i = 1...d
-def distance_in_each_coordinate(x, y):
-    return [ abs(a-b) for (a,b) in zip(x, y) ]
 
 def grid_2D_heuristic(current, destination):
     dx, dy = distance_in_each_coordinate(current, destination)
     return dx + dy
 
+
 def grid_diagonal_2D_heuristic(current, destination):
     dx, dy = distance_in_each_coordinate(current, destination)
     return max(dx, dy)
+
 
 def grid_3D_heuristic(current, destination):
     dx, dy, dz = distance_in_each_coordinate(current, destination)
     return dx + dy + dz
 
+
 def grid_face_diagonal_3D_heuristic(current, destination):
     dx, dy, dz = sorted(distance_in_each_coordinate(current, destination))
-    return max(dx, dy, dz, math.ceil((dx + dy + dz) / 2))
+    # use face diagonals first
+    return dz
+
 
 def grid_all_diagonal_3D_heuristic(current, destination):
     dx, dy, dz = distance_in_each_coordinate(current, destination)
     return max(dx, dy, dz)
 
+
 def grid_great_king_2D_heuristic(current, destination):
     dx, dy = distance_in_each_coordinate(current, destination)
     return max(math.ceil(dx / 8), math.ceil(dy / 8))
+
 
 def grid_rook_2D_heuristic(current, destination):
     dx, dy = distance_in_each_coordinate(current, destination)
@@ -39,12 +42,12 @@ def grid_rook_2D_heuristic(current, destination):
 
     return math.ceil(dx / 8) + math.ceil(dy / 8)
 
+
 def grid_jumper_2D_heuristic(current, destination):
-    dx, dy = distance_in_each_coordinate(current, destination)
-    if dx < dy:
-        dx, dy = dy, dx
+    dx, dy = sorted(distance_in_each_coordinate(current, destination), reverse=True)
 
-    return max((2*dx - dy + 4) // 5, (2*dy - dx + 4) // 5, (dx + dy + 4) // 5)
-
-
-
+    # each move changes |dx|+|dy| by at most 5
+    return max(
+        math.ceil(dx / 3),
+        math.ceil((dx + dy) / 5)
+    )
